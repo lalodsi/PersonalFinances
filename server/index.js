@@ -34,7 +34,7 @@ app.post("/movements", async (req, res) => {
 app.get("/movements/", async (req, res) => {
     try {
         const allMovements = await pool.query(
-            "SELECT * FROM movements",
+            "SELECT * FROM movements ORDER BY expense_date desc LIMIT 10",
         )
         console.log(allMovements.rows);
         res.json(allMovements.rows)

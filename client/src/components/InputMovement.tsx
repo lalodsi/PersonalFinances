@@ -20,6 +20,7 @@ const InputMovement = (): JSX.Element => {
       }
       const response = await fetch("http://localhost:5000/movements", headers)
       console.log("done");
+      window.location.href = "/";
 
       // window.location.href = "/";
     } catch (err) {

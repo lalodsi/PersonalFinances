@@ -1,18 +1,16 @@
 import React from 'react'
 import './App.css'
 
-// Components
+// Views
 
-import InputMovement from './components/InputMovement';
-import ListMovements from './components/ListMovements';
+import { MovementsView } from './Views';
 
 const App = () => {
 
   return (
     <>
       <div className='container'>
-        <InputMovement />
-        <ListMovements />
+        <MovementsView />
       </div>
     </>
   )
