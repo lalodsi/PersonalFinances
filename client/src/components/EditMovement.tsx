@@ -1,23 +1,23 @@
 import React, { ChangeEventHandler, EventHandler, FormEventHandler, Fragment, useState } from 'react'
 
-interface EditTodoProps {
-  initialValue: string,
+interface EditMovementProps {
+  initialValue: number,
   id: number
 }
 
-const EditTodo = (props: EditTodoProps): JSX.Element => {
+const EditMovement = (props: EditMovementProps): JSX.Element => {
   const { initialValue, id } = props;
-  const [description, setDescription] = useState<string>(initialValue);
+  const [quantity, setQuantity] = useState<number>(initialValue);
 
-  const handleChangeDescription: ChangeEventHandler<HTMLInputElement> = e => {
-    setDescription(e.target.value);
+  const handleChangeQuantity: ChangeEventHandler<HTMLInputElement> = e => {
+    setQuantity(parseFloat(e.target.value));
   }
 
   const handleSubmit: FormEventHandler = async e => {
     e.preventDefault();
     try {
       const body = {
-        description
+        quantity
       };
       console.log(body);
       
@@ -26,7 +26,7 @@ const EditTodo = (props: EditTodoProps): JSX.Element => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body)
       }
-      const response = await fetch(`http://localhost:5000/todos/${id}`, options);
+      const response = await fetch(`http://localhost:5000/movements/${id}`, options);
       console.log(response.text);
       window.location.href = "/";
     } catch (err) {
@@ -49,8 +49,8 @@ const EditTodo = (props: EditTodoProps): JSX.Element => {
                   type="text"
                   name="text"
                   className="form-control"
-                  value={description}
-                  onChange={handleChangeDescription}
+                  value={quantity}
+                  onChange={handleChangeQuantity}
                 />
                 </div>
                 <div className="modal-footer">
@@ -66,4 +66,4 @@ const EditTodo = (props: EditTodoProps): JSX.Element => {
   )
 }
 
-export default EditTodo
+export default EditMovement

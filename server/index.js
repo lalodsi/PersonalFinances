@@ -9,14 +9,19 @@ app.use(express.json());
 
 //// Routes
 
-// Create a todo
-app.post("/todos", async (req, res) => {
+// Create a movement
+app.post("/movements", async (req, res) => {
     try {
-        const { description } = req.body;
+        const {
+            quantity,
+            movementType,
+            date
+        } = req.body;
         const newTodo = await pool.query(
-            "INSERT INTO todo (description) VALUES($1) RETURNING *",
-            [description]
+            "INSERT INTO movements (quantity, movement_type, expense_date) VALUES($1, $2, $3) RETURNING *",
+            [quantity, movementType, date]
         )
+        console.log(newTodo.command);
         res.json(newTodo.rows[0]);
     } catch (err) {
         console.error(err.message);
@@ -24,11 +29,12 @@ app.post("/todos", async (req, res) => {
 })
 
 // Get all todos
-app.get("/todos/", async (req, res) => {
+app.get("/movements/", async (req, res) => {
     try {
         const allTodos = await pool.query(
-            "SELECT * FROM todo",
+            "SELECT * FROM movements",
         )
+        console.log(allTodos.rows);
         res.json(allTodos.rows)
     } catch (err) {
         console.error(err.message);
@@ -36,12 +42,12 @@ app.get("/todos/", async (req, res) => {
 })
 
 // Get a todo
-app.get("/todos/:id", async (req, res) => {
+app.get("/movements/:id", async (req, res) => {
     //
     try {
         const { id } = req.params
         const todo = await pool.query(
-            'SELECT * FROM todo WHERE todo_id = $1',
+            'SELECT * FROM movements WHERE expense_id = $1',
             [id]
         )
         res.json(todo.rows[0])
@@ -52,29 +58,29 @@ app.get("/todos/:id", async (req, res) => {
 })
 
 // Update a todo
-app.put("/todos/:id", async (req,res) => {
+app.put("/movements/:id", async (req,res) => {
     //
     try {
         const { id } = req.params;
-        const { description } = req.body;
+        const { quantity } = req.body;
 
         const updateTodo = await pool.query(
-            "UPDATE todo SET description = $1 WHERE todo_id = $2",
-            [description, id]
+            "UPDATE movements SET quantity = $1 WHERE expense_id = $2",
+            [quantity, id]
         );
 
-        res.json("Updated!")
+        res.send("Updated!")
     } catch (err) {
         console.error(err.message);
     }
 })
 
 // Delete a todo
-app.delete("/todos/:id", async (req, res) => {
+app.delete("/movements/:id", async (req, res) => {
     //
     const { id } = req.params;
     const deleted = await pool.query(
-        "DELETE FROM todo WHERE todo_id = $1",
+        "DELETE FROM movements WHERE expense_id = $1",
         [id]
     );
     res.json("Todo was deleted")

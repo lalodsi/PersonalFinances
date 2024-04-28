@@ -3,15 +3,15 @@ import './App.css'
 
 // Components
 
-import InputTodo from './components/InputTodo';
-import ListTodos from './components/ListTodos';
+import InputMovement from './components/InputMovement';
+import ListTodos from './components/ListMovements';
 
 const App = () => {
 
   return (
     <>
       <div className='container'>
-        <InputTodo />
+        <InputMovement />
         <ListTodos />
       </div>
     </>
