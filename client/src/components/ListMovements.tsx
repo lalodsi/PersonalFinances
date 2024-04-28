@@ -29,7 +29,7 @@ const ListMovements = () => {
     getmovements();
   },[]);
 
-  const eraseTodo = async (props: movement) => {
+  const eraseMovement = async (props: movement) => {
     const { expense_id } = props;
     const options: RequestInit = {
       method: "DELETE",
@@ -65,7 +65,7 @@ const ListMovements = () => {
                   <EditMovement initialValue={movement.quantity} id={movement.expense_id} />
                 </td>
                 <td>
-                  <button className='btn btn-danger' onClick={() => eraseTodo(movement)}>Erase</button>
+                  <button className='btn btn-danger' onClick={() => eraseMovement(movement)}>Erase</button>
                 </td>
               </tr>
             ))

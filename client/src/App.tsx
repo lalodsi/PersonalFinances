@@ -4,7 +4,7 @@ import './App.css'
 // Components
 
 import InputMovement from './components/InputMovement';
-import ListTodos from './components/ListMovements';
+import ListMovements from './components/ListMovements';
 
 const App = () => {
 
@@ -12,7 +12,7 @@ const App = () => {
     <>
       <div className='container'>
         <InputMovement />
-        <ListTodos />
+        <ListMovements />
       </div>
     </>
   )

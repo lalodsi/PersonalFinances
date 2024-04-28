@@ -17,54 +17,54 @@ app.post("/movements", async (req, res) => {
             movementType,
             date
         } = req.body;
-        const newTodo = await pool.query(
+        const newMovement = await pool.query(
             "INSERT INTO movements (quantity, movement_type, expense_date) VALUES($1, $2, $3) RETURNING *",
             [quantity, movementType, date]
         )
-        console.log(newTodo.command);
-        res.json(newTodo.rows[0]);
+        console.log(newMovement.command);
+        res.json(newMovement.rows[0]);
     } catch (err) {
         console.error(err.message);
     }
 })
 
-// Get all todos
+// Get all movements
 app.get("/movements/", async (req, res) => {
     try {
-        const allTodos = await pool.query(
+        const allMovements = await pool.query(
             "SELECT * FROM movements",
         )
-        console.log(allTodos.rows);
-        res.json(allTodos.rows)
+        console.log(allMovements.rows);
+        res.json(allMovements.rows)
     } catch (err) {
         console.error(err.message);
     }
 })
 
-// Get a todo
+// Get a movement
 app.get("/movements/:id", async (req, res) => {
     //
     try {
         const { id } = req.params
-        const todo = await pool.query(
+        const movement = await pool.query(
             'SELECT * FROM movements WHERE expense_id = $1',
             [id]
         )
-        res.json(todo.rows[0])
+        res.json(movement.rows[0])
     } catch (err) {
         console.error(err.message);
     }
 
 })
 
-// Update a todo
+// Update a movement
 app.put("/movements/:id", async (req,res) => {
     //
     try {
         const { id } = req.params;
         const { quantity } = req.body;
 
-        const updateTodo = await pool.query(
+        const updateMovement = await pool.query(
             "UPDATE movements SET quantity = $1 WHERE expense_id = $2",
             [quantity, id]
         );
@@ -75,7 +75,7 @@ app.put("/movements/:id", async (req,res) => {
     }
 })
 
-// Delete a todo
+// Delete a movement
 app.delete("/movements/:id", async (req, res) => {
     //
     const { id } = req.params;
@@ -83,7 +83,7 @@ app.delete("/movements/:id", async (req, res) => {
         "DELETE FROM movements WHERE expense_id = $1",
         [id]
     );
-    res.json("Todo was deleted")
+    res.json("Movement was deleted")
 })
 
 app.listen(5000,() => {
