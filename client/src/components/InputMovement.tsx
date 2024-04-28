@@ -2,6 +2,7 @@ import React, { ChangeEventHandler, FormEvent, FormEventHandler, Fragment, useSt
 
 const InputMovement = (): JSX.Element => {
   const [quantity, setQuantity] = useState<number>(0);
+  const [description, setDescription] = useState<string>("");
   const [movementType, setMovementType] = useState<boolean>(false);
   const [date, setDate] = useState<string>("");
 
@@ -11,20 +12,25 @@ const InputMovement = (): JSX.Element => {
     console.log(`Movement: It's a ${movementType ? "income" : "expense"} for ${quantity} pesos on ${date}`);
     
     try {
-      const body = { quantity, movementType, date };
+      const body = { quantity, description, movementType, date };
       const headers: RequestInit = {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body)
       }
       const response = await fetch("http://localhost:5000/movements", headers)
-      const json = await response.json()
-      console.log(json);
+      console.log("done");
 
-      window.location.href = "/";
+      // window.location.href = "/";
     } catch (err) {
       console.error(err);
     }
+  }
+
+  const handleSetDescription: ChangeEventHandler<HTMLInputElement> = (e) => {
+    const value = e.target.value ?? "No description"
+    console.log(value);
+    setDescription(value)
   }
 
   return (
@@ -37,6 +43,13 @@ const InputMovement = (): JSX.Element => {
           className="form-control"
           value={quantity}
           onChange={e => setQuantity(parseFloat(e.target.value))}
+        />
+        <input
+          type="text"
+          name="description"
+          className="form-control"
+          value={description}
+          onChange={handleSetDescription}
         />
         <select
           defaultValue={"Expense"}

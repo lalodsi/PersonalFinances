@@ -14,15 +14,17 @@ app.post("/movements", async (req, res) => {
     try {
         const {
             quantity,
+            description,
             movementType,
             date
         } = req.body;
+        console.log(req.body);
         const newMovement = await pool.query(
-            "INSERT INTO movements (quantity, movement_type, expense_date) VALUES($1, $2, $3) RETURNING *",
-            [quantity, movementType, date]
+            "INSERT INTO movements (quantity, description, movement_type, expense_date) VALUES($1, $2, $3, $4)",
+            [quantity, description, movementType, date]
         )
         console.log(newMovement.command);
-        res.json(newMovement.rows[0]);
+        res.send(newMovement.rows[0]);
     } catch (err) {
         console.error(err.message);
     }
@@ -62,11 +64,11 @@ app.put("/movements/:id", async (req,res) => {
     //
     try {
         const { id } = req.params;
-        const { quantity } = req.body;
+        const { quantity, description } = req.body;
 
         const updateMovement = await pool.query(
-            "UPDATE movements SET quantity = $1 WHERE expense_id = $2",
-            [quantity, id]
+            "UPDATE movements SET quantity = $1, description = $2 WHERE expense_id = $3",
+            [quantity, description, id]
         );
 
         res.send("Updated!")

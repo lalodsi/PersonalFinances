@@ -3,6 +3,7 @@ import EditMovement from './EditMovement';
 
 interface movement {
   "expense_id": number,
+  description: string
   "quantity": number,
   "movement_type": boolean,
   "expense_date": string
@@ -45,10 +46,10 @@ const ListMovements = () => {
       <table className="table table-borderless">
         <thead>
           <tr>
-            <th scope="col">#</th>
+            <th scope="col">Description</th>
             <th scope="col">Quantity</th>
-            <th scope="col">Date</th>
-            <th scope="col">Type</th>
+            {/* <th scope="col">Date</th> */}
+            {/* <th scope="col">Type</th> */}
             <th scope="col">Edit</th>
             <th scope="col">Delete</th>
           </tr>
@@ -57,10 +58,10 @@ const ListMovements = () => {
           {
             movements.map((movement, i) => (
               <tr key={i}>
-                <th scope='row'>{movement.expense_id}</th>
+                <th scope='row'>{movement.description}</th>
                 <td>{movement.quantity}</td>
-                <td>{movement.expense_date}</td>
-                <td>{movement.movement_type ? "Income" : "Expense"}</td>
+                {/* <td>{movement.expense_date}</td> */}
+                {/* <td>{movement.movement_type ? "Income" : "Expense"}</td> */}
                 <td>
                   <EditMovement initialValue={movement.quantity} id={movement.expense_id} />
                 </td>
