@@ -1,0 +1,13 @@
+{
+    "name": "my-expenses-project",
+    "workspaces": [
+        "server",
+        "client"
+    ],
+    "dependencies": {
+        "concurrently": "^8.2.2"
+    },
+    "scripts": {
+        "start": "concurrently \"npm run dev --workspace=client\" \"npm run start --workspace=server\" "
+    }
+}
