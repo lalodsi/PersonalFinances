@@ -3,7 +3,7 @@ import './App.css'
 
 // Views
 
-import { MovementsView } from './Views';
+import { MovementsView, SummaryView } from './Views';
 
 const App = () => {
 
@@ -11,6 +11,7 @@ const App = () => {
     <>
       <div className='container'>
         <MovementsView />
+        <SummaryView />
       </div>
     </>
   )

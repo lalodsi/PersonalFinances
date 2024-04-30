@@ -38,36 +38,48 @@ const InputMovement = (): JSX.Element => {
     <Fragment>
       <h1 className='text-center mt-5'>Enter your movement</h1>
       <form className='d-flex' onSubmit={onSubmitForm}>
-        <input
-          type="number"
-          name="number"
-          className="form-control"
-          value={quantity}
-          onChange={e => setQuantity(parseFloat(e.target.value))}
-        />
-        <input
-          type="text"
-          name="description"
-          className="form-control"
-          value={description}
-          onChange={handleSetDescription}
-        />
-        <select
-          defaultValue={"Expense"}
-          className='form-select'
-          name="" id=""
-          onChange={e => setMovementType(e.target.value === "Entry")}
-        >
-          {/* <option value="">Select the movement type</option> */}
-          <option value="Expense">Expense</option>
-          <option value="Entry">Entry</option>
-        </select>
-        <input
-          type="date"
-          className='form-control'
-          value={date}
-          onChange={e => setDate(e.target.value)}
-        />
+        <div className='d-flex flex-column'>
+          <div className='InputMovement_PropertyName text-center'>Quantity</div>
+          <input
+            type="number"
+            name="number"
+            className="form-control"
+            value={quantity}
+            onChange={e => setQuantity(parseFloat(e.target.value))}
+          />
+        </div>
+        <div className='d-flex flex-column'>
+          <div className='InputMovement_PropertyName text-center'>Description</div>
+          <input
+            type="text"
+            name="description"
+            className="form-control"
+            value={description}
+            onChange={handleSetDescription}
+          />
+        </div>
+        <div className='d-flex flex-column'>
+          <div className='InputMovement_PropertyName text-center'>Type</div>
+          <select
+            defaultValue={"Expense"}
+            className='form-select'
+            name="" id=""
+            onChange={e => setMovementType(e.target.value === "Entry")}
+          >
+            {/* <option value="">Select the movement type</option> */}
+            <option value="Expense">Expense</option>
+            <option value="Entry">Entry</option>
+          </select>
+        </div>
+        <div className='d-flex flex-column'>
+          <div className='InputMovement_PropertyName text-center'>Date</div>
+          <input
+            type="date"
+            className='form-control'
+            value={date}
+            onChange={e => setDate(e.target.value)}
+          />
+        </div>
         <button className='btn btn-success' type='submit' >Add</button>
       </form>
     </Fragment>

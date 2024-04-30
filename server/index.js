@@ -43,6 +43,39 @@ app.get("/movements/", async (req, res) => {
     }
 })
 
+// Get all movements by month
+app.get("/movements/month/:month", async (req, res) => {
+    try {
+        console.log("Getting data by month");
+        const { month } = req.params;
+        const monthNumber = parseInt(month)
+        if (monthNumber < 1 || monthNumber > 12) {
+            throw new Error("Error, month value is not between 1 - 12")
+        }
+        const nextMonthNumber = monthNumber == 12 ? 1 : monthNumber + 1;
+        let monthString = ''
+        let nextMonthString = ''
+        if (monthNumber < 10) {
+            monthString = `0${monthNumber}`
+        } else {
+            monthString = `${monthNumber}`
+        }
+        if (nextMonthNumber < 10) {
+            nextMonthString = `0${nextMonthNumber}`
+        } else {
+            nextMonthString = `${nextMonthNumber}`
+        }
+        const allMovements = await pool.query(
+            `SELECT * FROM movements WHERE expense_date BETWEEN \'2024-${monthString}-01\' AND '2024-${nextMonthString}-01' ORDER BY expense_date desc`,
+        )
+        console.log(`SELECT * FROM movements WHERE expense_date BETWEEN \'2024-${monthString}-01\' AND '2024-${nextMonthString}-01' ORDER BY expense_date desc`);
+        // console.log(allMovements.rows);
+        res.json(allMovements.rows)
+    } catch (err) {
+        console.error(err.message);
+    }
+})
+
 // Get a movement
 app.get("/movements/:id", async (req, res) => {
     //
