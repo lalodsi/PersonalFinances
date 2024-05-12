@@ -1,9 +1,11 @@
 import React from 'react'
+import bigintToFloat from '../../utils/bigintToFloat'
+import MonthSelector from '../../components/MonthSelector/MonthSelector'
 
 interface movement {
   "expense_id": number,
   description: string
-  "quantity": number,
+  "quantity": string,
   "movement_type": boolean,
   "expense_date": string
 }
@@ -11,7 +13,8 @@ interface movement {
 const Summary = () => {
   const [movements, setMovements] = React.useState<movement[]>()
   const [total, setTotal] = React.useState<number>(0)
-  const getMonthMovements = async () => {
+
+  const getMonthMovements = async (month: number) => {
     //
     const options: RequestInit = {
       method: "GET",
@@ -19,25 +22,29 @@ const Summary = () => {
         "Content-Type": "application/json"
       }
     }
-    const response = await fetch("http://localhost:5000/movements/month/4", options)
+    const response = await fetch(`http://localhost:5000/movements/month/${month}`, options)
     const responseJson = await response.json()
     console.log(responseJson);
     setMovements(responseJson)
   }
 
   React.useEffect(() => {
-    getMonthMovements();
-  },[])
-  React.useEffect(() => {
     if (movements) {
-      const sum = movements.reduce((prev,acc) => prev + acc.quantity, 0)
+      console.log(movements);
+      
+      const sum = movements.reduce((prev,acc) => prev + bigintToFloat(acc.quantity)*100, 0)
       setTotal(sum)
     }
   },[movements])
 
+  const changeMonth = (month: number) => {
+    getMonthMovements(month)
+  }
+
   return (
     <React.Fragment>
       <h1>Montly Summary</h1>
+      <MonthSelector onChange={changeMonth} />
       <div>Total: {total}</div>
     </React.Fragment>
   )
