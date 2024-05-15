@@ -1,5 +1,6 @@
 import React, { Fragment, useEffect, useState } from 'react'
 import EditMovement from './EditMovement';
+import toAmountRepresentation from '../utils/toAmountRepresentation';
 
 interface movement {
   "expense_id": number,
@@ -59,7 +60,7 @@ const ListMovements = () => {
             movements.map((movement, i) => (
               <tr key={i}>
                 <th scope='row'>{movement.description}</th>
-                <td>{movement.quantity}</td>
+                <td>{toAmountRepresentation(movement.quantity)}</td>
                 {/* <td>{movement.expense_date}</td> */}
                 {/* <td>{movement.movement_type ? "Income" : "Expense"}</td> */}
                 <td>

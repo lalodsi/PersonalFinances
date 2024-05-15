@@ -1,6 +1,7 @@
 import React from 'react'
 import bigintToFloat from '../../utils/bigintToFloat'
 import MonthSelector from '../../components/MonthSelector/MonthSelector'
+import toAmountRepresentation from '../../utils/toAmountRepresentation'
 
 interface movement {
   "expense_id": number,
@@ -45,7 +46,7 @@ const Summary = () => {
     <React.Fragment>
       <h1>Montly Summary</h1>
       <MonthSelector onChange={changeMonth} />
-      <div>Total: {total}</div>
+      <div>Total: {toAmountRepresentation(total)}</div>
     </React.Fragment>
   )
 }
