@@ -49,10 +49,10 @@ const ListMovements = () => {
           <tr>
             <th scope="col">Description</th>
             <th scope="col">Quantity</th>
-            {/* <th scope="col">Date</th> */}
+            <th scope="col">Date</th>
             {/* <th scope="col">Type</th> */}
-            <th scope="col">Edit</th>
-            <th scope="col">Delete</th>
+            {/* <th scope="col">Edit</th>
+            <th scope="col">Delete</th> */}
           </tr>
         </thead>
         <tbody>
@@ -61,14 +61,14 @@ const ListMovements = () => {
               <tr key={i}>
                 <th scope='row'>{movement.description}</th>
                 <td>{toAmountRepresentation(movement.quantity)}</td>
-                {/* <td>{movement.expense_date}</td> */}
+                <td>{new Date(movement.expense_date).toLocaleDateString()}</td>
                 {/* <td>{movement.movement_type ? "Income" : "Expense"}</td> */}
-                <td>
+                {/* <td>
                   <EditMovement initialValue={movement.quantity} id={movement.expense_id} />
                 </td>
                 <td>
                   <button className='btn btn-danger' onClick={() => eraseMovement(movement)}>Erase</button>
-                </td>
+                </td> */}
               </tr>
             ))
           }

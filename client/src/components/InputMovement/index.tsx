@@ -1,7 +1,9 @@
+import toAmountRepresentation from "../../utils/toAmountRepresentation";
+import "./styles.css"
 import React, { ChangeEventHandler, FormEvent, FormEventHandler, Fragment, useState } from 'react'
 
 const InputMovement = (): JSX.Element => {
-  const [quantity, setQuantity] = useState<number>(0);
+  const [quantity, setQuantity] = useState<string>("");
   const [description, setDescription] = useState<string>("");
   const [movementType, setMovementType] = useState<boolean>(false);
   const [date, setDate] = useState<string>("");
@@ -12,7 +14,8 @@ const InputMovement = (): JSX.Element => {
     console.log(`Movement: It's a ${movementType ? "income" : "expense"} for ${quantity} pesos on ${date}`);
     
     try {
-      const body = { quantity, description, movementType, date };
+      const cleaned = quantity.replace(/[,\.]/g, '')
+      const body = { quantity: cleaned, description, movementType, date };
       const headers: RequestInit = {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -34,21 +37,32 @@ const InputMovement = (): JSX.Element => {
     setDescription(value)
   }
 
+  const handleQuantityChange: ChangeEventHandler<HTMLInputElement> = (e) => {
+    const value = e.target.value
+    const cleaned = value.replace(/[,\.]/g, '');
+
+    const inAmount = toAmountRepresentation(parseInt(cleaned))
+    console.log(inAmount);
+
+    setQuantity(inAmount)
+  }
+
   return (
     <Fragment>
-      <h1 className='text-center mt-5'>Enter your movement</h1>
-      <form className='d-flex' onSubmit={onSubmitForm}>
-        <div className='d-flex flex-column'>
+      <h3 className='text-center mt-5'>Enter your movement</h3>
+      <form className='d-flex flex-column' onSubmit={onSubmitForm}>
+        <div className='d-flex flex-row'>
           <div className='InputMovement_PropertyName text-center'>Quantity</div>
           <input
-            type="number"
+            type="text"
             name="number"
             className="form-control"
             value={quantity}
-            onChange={e => setQuantity(parseFloat(e.target.value))}
+            placeholder="0.00"
+            onChange={handleQuantityChange}
           />
         </div>
-        <div className='d-flex flex-column'>
+        <div className='d-flex flex-row'>
           <div className='InputMovement_PropertyName text-center'>Description</div>
           <input
             type="text"
@@ -58,7 +72,7 @@ const InputMovement = (): JSX.Element => {
             onChange={handleSetDescription}
           />
         </div>
-        <div className='d-flex flex-column'>
+        <div className='d-flex flex-row'>
           <div className='InputMovement_PropertyName text-center'>Type</div>
           <select
             defaultValue={"Expense"}
