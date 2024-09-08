@@ -1,16 +1,10 @@
-const express = require("express");
-const app = express();
-const cors = require("cors")
-const pool = require("./db");
+import { Router } from "express";
+import pool from "../db"
 
-// Middleware
-app.use(cors());
-app.use(express.json());
-
-//// Routes
+const router = Router()
 
 // Create a movement
-app.post("/movements", async (req, res) => {
+router.post("/", async (req, res) => {
     try {
         const {
             quantity,
@@ -26,27 +20,27 @@ app.post("/movements", async (req, res) => {
         console.log(newMovement.command);
         res.send(newMovement.rows[0]);
     } catch (err) {
-        console.error(err.message);
+        console.error(err);
     }
 })
 
 // Get all movements
-app.get("/movements/", async (req, res) => {
+router.get("/", async (req, res) => {
     try {
         const allMovements = await pool.query(
             "SELECT * FROM movements ORDER BY expense_date desc LIMIT 10",
         )
         res.json(allMovements.rows)
     } catch (err) {
-        console.error(err.message);
+        console.error(err);
     }
 })
 
 // Get all movements by month
-app.get("/movements/month/:month", async (req, res) => {
+router.get("/month/:month", async (req, res) => {
     try {
         console.log("Getting data by month");
-        const { month } = req.params;
+        const { month } = req.params
         const monthNumber = parseInt(month)
         if (monthNumber < 1 || monthNumber > 12) {
             throw new Error("Error, month value is not between 1 - 12")
@@ -58,28 +52,28 @@ app.get("/movements/month/:month", async (req, res) => {
         // console.log(allMovements.rows);
         res.json(allMovements.rows)
     } catch (err) {
-        console.error(err.message);
+        console.log(typeof err);
     }
 })
 
 // Get a movement
-app.get("/movements/:id", async (req, res) => {
-    //
-    try {
-        const { id } = req.params
-        const movement = await pool.query(
-            'SELECT * FROM movements WHERE expense_id = $1',
-            [id]
-        )
-        res.json(movement.rows[0])
-    } catch (err) {
-        console.error(err.message);
-    }
+// router.get("/:id", async (req, res) => {
+//     //
+//     try {
+//         const { id } = req.params
+//         const movement = await pool.query(
+//             'SELECT * FROM movements WHERE id = $1',
+//             [id]
+//         )
+//         res.json(movement.rows[0])
+//     } catch (err) {
+//         console.error(err);
+//     }
 
-})
+// })
 
 // Update a movement
-app.put("/movements/:id", async (req,res) => {
+router.put("/:id", async (req,res) => {
     //
     try {
         const { id } = req.params;
@@ -92,12 +86,12 @@ app.put("/movements/:id", async (req,res) => {
 
         res.send("Updated!")
     } catch (err) {
-        console.error(err.message);
+        console.error(err);
     }
 })
 
 // Delete a movement
-app.delete("/movements/:id", async (req, res) => {
+router.delete("/:id", async (req, res) => {
     //
     const { id } = req.params;
     const deleted = await pool.query(
@@ -107,7 +101,4 @@ app.delete("/movements/:id", async (req, res) => {
     res.json("Movement was deleted")
 })
 
-app.listen(5000,() => {
-    //
-    console.log("Server starting on port 5000");
-})
+export default router
