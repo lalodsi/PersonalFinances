@@ -14,7 +14,7 @@ router.post("/", async (req, res) => {
         } = req.body;
         console.log(req.body);
         const newMovement = await pool.query(
-            "INSERT INTO movements (quantity, description, movement_type, expense_date) VALUES($1, $2, $3, $4)",
+            "INSERT INTO movements (user_id, category_id, quantity, description, movement_type, expense_date) VALUES(1, 1, $1, $2, $3, $4)",
             [quantity, description, movementType, date]
         )
         console.log(newMovement.command);
@@ -57,20 +57,20 @@ router.get("/month/:month", async (req, res) => {
 })
 
 // Get a movement
-// router.get("/:id", async (req, res) => {
-//     //
-//     try {
-//         const { id } = req.params
-//         const movement = await pool.query(
-//             'SELECT * FROM movements WHERE id = $1',
-//             [id]
-//         )
-//         res.json(movement.rows[0])
-//     } catch (err) {
-//         console.error(err);
-//     }
+router.get("/:id", async (req, res) => {
+    //
+    try {
+        const { id } = req.params
+        const movement = await pool.query(
+            'SELECT * FROM movements WHERE id = $1',
+            [id]
+        )
+        res.json(movement.rows[0])
+    } catch (err) {
+        console.error(err);
+    }
 
-// })
+})
 
 // Update a movement
 router.put("/:id", async (req,res) => {
@@ -95,7 +95,7 @@ router.delete("/:id", async (req, res) => {
     //
     const { id } = req.params;
     const deleted = await pool.query(
-        "DELETE FROM movements WHERE expense_id = $1",
+        "DELETE FROM movements WHERE id = $1",
         [id]
     );
     res.json("Movement was deleted")
