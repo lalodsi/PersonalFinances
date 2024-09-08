@@ -19,7 +19,7 @@ const ListMovements = () => {
         method: "GET",
         headers: { "Content-Type": "application/json" }
       };
-      const response = await fetch("http://localhost:5000/movements/", options);
+      const response = await fetch("http://localhost:5000/api/movements/", options);
       const jsonResponse: movement[] = await response.json();
       setMovements(jsonResponse);
     } catch (err) {
@@ -37,7 +37,7 @@ const ListMovements = () => {
       method: "DELETE",
       headers: { "Content-Type": "application/json"}
     }
-    const response = await fetch(`http://localhost:5000/movements/${expense_id}`, options);
+    const response = await fetch(`http://localhost:5000/api/movements/${expense_id}`, options);
     console.log(`Deleted ${expense_id}`);
     setMovements(movements.filter(movement => movement.expense_id !== props.expense_id))
   }

@@ -23,7 +23,7 @@ const Summary = () => {
         "Content-Type": "application/json"
       }
     }
-    const response = await fetch(`http://localhost:5000/movements/month/${month}`, options)
+    const response = await fetch(`http://localhost:5000/api/movements/month/${month}`, options)
     const responseJson = await response.json()
     console.log(responseJson);
     setMovements(responseJson)

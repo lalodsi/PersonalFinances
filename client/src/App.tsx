@@ -32,6 +32,9 @@ const App = () => {
             <li>
               <Link to="/register">Register</Link>
             </li>
+            <li>
+              <Link to="/content">Content</Link>
+            </li>
           </ul>
         </nav>
         <Routes>

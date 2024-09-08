@@ -26,7 +26,7 @@ const EditMovement = (props: EditMovementProps): JSX.Element => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body)
       }
-      const response = await fetch(`http://localhost:5000/movements/${id}`, options);
+      const response = await fetch(`http://localhost:5000/api/movements/${id}`, options);
       console.log(response.text);
       window.location.href = "/";
     } catch (err) {
