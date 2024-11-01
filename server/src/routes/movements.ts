@@ -24,13 +24,39 @@ router.post("/", async (req, res) => {
     }
 })
 
-// Get all movements
+// Get last 10 movements movements
 router.get("/", async (req, res) => {
     try {
         const allMovements = await pool.query(
             "SELECT * FROM movements ORDER BY expense_date desc LIMIT 10",
         )
         res.json(allMovements.rows)
+    } catch (err) {
+        console.error(err);
+    }
+})
+
+// Search a movement
+router.post("/search", async (req, res) => {
+    try {
+        const {
+            description,
+            expense_date
+        } = req.body
+        if (description && expense_date === undefined) {
+            const result = await pool.query(
+                "SELECT * FROM movements WHERE description LIKE '%' || $1 || '%';",
+                [description]
+            )
+            res.json(result.rows)
+        }
+        if (expense_date && description === undefined) {
+            const result = await pool.query(
+                "SELECT * FROM movements WHERE DATE(expense_date) = DATE($1);",
+                [expense_date]
+            )
+            res.json(result.rows)
+        }
     } catch (err) {
         console.error(err);
     }
@@ -94,10 +120,14 @@ router.put("/:id", async (req,res) => {
 router.delete("/:id", async (req, res) => {
     //
     const { id } = req.params;
+    console.log("about to delete");
+    
     const deleted = await pool.query(
         "DELETE FROM movements WHERE id = $1",
         [id]
     );
+    console.log(deleted);
+    
     res.json("Movement was deleted")
 })
 
