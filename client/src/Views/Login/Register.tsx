@@ -1,5 +1,6 @@
 // src/Register.tsx
 import React, { useState } from 'react';
+import bcrypt from 'bcryptjs'
 
 const Register: React.FC = () => {
   const [username, setUsername] = useState<string>('');
