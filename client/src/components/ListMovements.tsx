@@ -1,46 +1,18 @@
 import React, { Fragment, useEffect, useState } from 'react'
 import EditMovement from './EditMovement';
 import toAmountRepresentation from '../utils/toAmountRepresentation';
+import { useMovements } from '../hooks/Movements/useMovements';
+import { useDeleteMovements } from '../hooks/Movements/useDeleteMovements';
 
-interface movement {
-  "expense_id": number,
-  description: string
-  "quantity": number,
-  "movement_type": boolean,
-  "expense_date": string
-}
+
 const ListMovements = () => {
 
-  const [movements, setMovements] = useState<movement[]>([]);
+  const { data: movements} = useMovements()
+  const {mutate: eraseMovement} = useDeleteMovements()
 
-  const getmovements = async () => {
-    try {
-      const options: RequestInit = {
-        method: "GET",
-        headers: { "Content-Type": "application/json" }
-      };
-      const response = await fetch("http://localhost:5000/api/movements/", options);
-      const jsonResponse: movement[] = await response.json();
-      setMovements(jsonResponse);
-    } catch (err) {
-      console.log(err);
-    }
-  }
 
-  useEffect(() => {
-    getmovements();
-  },[]);
-
-  const eraseMovement = async (props: movement) => {
-    const { expense_id } = props;
-    const options: RequestInit = {
-      method: "DELETE",
-      headers: { "Content-Type": "application/json"}
-    }
-    const response = await fetch(`http://localhost:5000/api/movements/${expense_id}`, options);
-    console.log(`Deleted ${expense_id}`);
-    setMovements(movements.filter(movement => movement.expense_id !== props.expense_id))
-  }
+  if (!movements)
+    return <div>Loading</div>
 
   return (
     <Fragment>
