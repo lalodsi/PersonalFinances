@@ -69,12 +69,12 @@ router.get("/month/:month", async (req, res) => {
         const { month } = req.params
         const monthNumber = parseInt(month)
         if (monthNumber < 1 || monthNumber > 12) {
-            throw new Error("Error, month value is not between 1 - 12")
+            throw new Error("Error, m\nth value is not between 1 - 12")
         }
         const allMovements = await pool.query(
-            `SELECT * FROM MOVEMENTS WHERE EXTRACT(MONTH FROM expense_date) = ${month} AND EXTRACT(YEAR FROM expense_date) = 2024`,
+            `SELECT * FROM MOVEMENTS WHERE EXTRACT(MONTH FROM expense_date) = ${month} AND EXTRACT(YEAR FROM expense_date) = 2025`,
         )
-        console.log(`SELECT * FROM MOVEMENTS WHERE EXTRACT(MONTH FROM expense_date) = ${month} AND EXTRACT(YEAR FROM expense_date) = 2024`);
+        console.log(`SELECT * FROM MOVEMENTS WHERE EXTRACT(MONTH FROM expense_date) = ${month} AND EXTRACT(YEAR FROM expense_date) = 2025`);
         // console.log(allMovements.rows);
         res.json(allMovements.rows)
     } catch (err) {
