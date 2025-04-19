@@ -3,7 +3,6 @@ import { Link } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { useAuthenticate } from '../../hooks/Login/useAuthenticate';
 import { AuthenticationModel } from '../../models/users';
-import bcrypt from 'bcryptjs';
 
 const Login: React.FC = () => {
 
@@ -19,7 +18,7 @@ const Login: React.FC = () => {
   };
 
   return (
-    <div>
+    <div >
       <h2>Login</h2>
       <form onSubmit={handleSubmit(handleLogin)}>
         <div>
