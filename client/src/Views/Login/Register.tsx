@@ -1,17 +1,33 @@
 // src/Register.tsx
 import React, { useState } from 'react';
 import bcrypt from 'bcryptjs'
+import { useForm } from 'react-hook-form';
+import { useRegistration } from '../../hooks/Login/useRegistration';
+
+interface RegistrationForm {
+  name: string
+  email: string
+  password: string
+  confirmPassword: string
+}
 
 const Register: React.FC = () => {
-  const [username, setUsername] = useState<string>('');
-  const [password, setPassword] = useState<string>('');
-  const [confirmPassword, setConfirmPassword] = useState<string>('');
 
-  const handleRegister = (event: React.FormEvent) => {
-    event.preventDefault();
-    // Lógica para manejar el registro
-    if (password === confirmPassword) {
-      console.log('Registering with', { username, password });
+  const {register, handleSubmit, watch} = useForm<RegistrationForm>()
+
+  const {mutate: registerUser} = useRegistration()
+
+  console.log(watch());
+  
+
+  const handleRegister = (e: RegistrationForm) => {
+    if (e.password === e.confirmPassword) {
+      console.log('Registering with', e);
+      registerUser({
+        name: e.name,
+        email: e.email,
+        passphrase: e.password
+      })
     } else {
       console.error('Passwords do not match');
     }
@@ -20,22 +36,26 @@ const Register: React.FC = () => {
   return (
     <div>
       <h2>Register</h2>
-      <form onSubmit={handleRegister}>
+      <form onSubmit={handleSubmit(handleRegister)}>
         <div>
-          <label>Username:</label>
+          <label>Name:</label>
           <input
-            type="text"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
+            {...register('name')}
+            required
+          />
+        </div>
+        <div>
+          <label>Email:</label>
+          <input
+            {...register('email')}
             required
           />
         </div>
         <div>
           <label>Password:</label>
           <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            type='password'
+            {...register('password')}
             required
           />
         </div>
@@ -43,8 +63,7 @@ const Register: React.FC = () => {
           <label>Confirm Password:</label>
           <input
             type="password"
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
+            {...register('confirmPassword')}
             required
           />
         </div>

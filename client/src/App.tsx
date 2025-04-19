@@ -3,11 +3,13 @@ import './App.css'
 import {BrowserRouter as Router, Route, Routes, Link} from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 
+
 // Views
 import Login from './Views/Login';
 import Register from './Views/Login/Register';
 import {MovementsView, SummaryView} from './Views';
 import HomeView from './Views/PrincipalView';
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 
 const Content = () => {
     return (
@@ -48,6 +50,7 @@ const App = () => {
                   </Routes>
               </div>
           </Router>
+          <ReactQueryDevtools />
       </QueryClientProvider>
   )
 }

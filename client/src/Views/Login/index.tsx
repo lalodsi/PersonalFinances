@@ -1,35 +1,38 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom'
+import { useForm } from 'react-hook-form'
+import { useAuthenticate } from '../../hooks/Login/useAuthenticate';
+import { AuthenticationModel } from '../../models/users';
+import bcrypt from 'bcryptjs';
 
 const Login: React.FC = () => {
-  const [username, setUsername] = useState<string>('');
-  const [password, setPassword] = useState<string>('');
 
-  const handleLogin = (event: React.FormEvent) => {
-    event.preventDefault();
-    // Lógica para manejar el login
-    console.log('Logging in with', { username, password });
+  const {register, watch, handleSubmit} = useForm<AuthenticationModel>()
+  const {mutate: authenticate} = useAuthenticate()
+
+
+  const handleLogin = (e: AuthenticationModel) => {
+    authenticate({
+      user: e.user,
+      passphrase: e.passphrase
+    })
   };
 
   return (
     <div>
       <h2>Login</h2>
-      <form onSubmit={handleLogin}>
+      <form onSubmit={handleSubmit(handleLogin)}>
         <div>
-          <label>Username:</label>
+          <label>User:</label>
           <input
-            type="text"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
+            {...register("user")}
             required
           />
         </div>
         <div>
           <label>Password:</label>
           <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            {...register("passphrase")}
             required
           />
         </div>

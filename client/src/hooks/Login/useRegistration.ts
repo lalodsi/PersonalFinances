@@ -1,12 +1,12 @@
 import { useMutation } from "@tanstack/react-query";
-import { postRegistration } from "../../api/registration";
+import { postRegistration } from "../../api/users";
 
-const useRegistration = () => {
-    const {data, isPending, isSuccess, isError} = useMutation({
+export const useRegistration = () => {
+    const {mutate, data, isPending, isSuccess, isError} = useMutation({
         mutationKey: ['register'],
         mutationFn: postRegistration
     })
 
 
-    return [data, isPending, isSuccess, isError]
+    return {data, mutate, isPending, isSuccess, isError}
 }
