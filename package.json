@@ -2,7 +2,8 @@
     "name": "my-expenses-project",
     "workspaces": [
         "server",
-        "client"
+        "client",
+        "mvp"
     ],
     "dependencies": {
         "concurrently": "^8.2.2"
