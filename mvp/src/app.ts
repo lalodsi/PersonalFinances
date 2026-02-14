@@ -3,7 +3,7 @@ import { Chart, CategoryScale, LineController, LineElement, LinearScale, PointEl
 import { Canvas } from "skia-canvas"
 import fsp from 'node:fs/promises';
 
-import type {MsiMove, RecurrentMove, SimpleMove} from './data.js'
+import type {MsiMove, RecurrentMove, SingleMove} from './data.js'
 import data from './data.js'
 import { monthKey, monthsRange} from './helpers.js'
 
@@ -18,8 +18,8 @@ Chart.register([
 /* -----------------------
    Agrupar gastos por mes (por movimientos aleatorios)
    ----------------------- */
-function groupMovesByMonth(moves: SimpleMove[]) {
-  const out: Record<string, SimpleMove[]> = {}
+function groupMovesByMonth(moves: SingleMove[]) {
+  const out: Record<string, SingleMove[]> = {}
   for (const m of moves) {
     const key = monthKey(new Date(m.date))
     out[key] = out[key] || []
@@ -33,7 +33,7 @@ type DebtCalendar = Record<string, MsiMove[]>
 /* -----------------------
    Desglose MSI
    - Asume que cada msiMove tiene:
-     { totalAmount, numberOfAmounts, mensuality, startMonth? }
+     { totalAmount, months, monthlyAmount, startMonth? }
    - startMonth (opcional) = 'YYYY-MM'
    - Si no tiene startMonth se asume que comenzó en el mes actual.
    Returns: map monthKey => total MSI mensual for that month (for the timeline)
@@ -54,18 +54,18 @@ function msiMonthlySchedule(msiMoves: MsiMove[], timelineKeys: string[], timelin
 
     // meses transcurridos desde inicio hasta timelineStart
     const monthsDiff = (timelineStart.getFullYear() - startDate.getFullYear()) * 12 + (timelineStart.getMonth() - startDate.getMonth())
-    let remaining = item.numberOfAmounts
+    let remaining = item.months
     let startIndex = 0
     if (monthsDiff > 0) {
       // ya comenzó anteriormente, entonces quedan:
-      remaining = Math.max(0, item.numberOfAmounts - monthsDiff)
+      remaining = Math.max(0, item.months - monthsDiff)
       startIndex = monthsDiff // el índice relativo en timeline donde aún aplica (si es negativo, se ajusta)
     } else {
       // todavía no comienza (startDate es en futuro) -> startIndex será negativo, convertimos a 0 y el pago empezará en startIndex positivo dentro del timeline
       startIndex = monthsDiff
     }
 
-    // now iterate timelineKeys and add mensuality to months where the installment is still active
+    // now iterate timelineKeys and add monthlyAmount to months where the installment is still active
     console.log('iterating months')
     for (let i = 0; i < timelineKeys.length; i++) {
       const timelineKey = timelineKeys[i] as string
@@ -74,7 +74,7 @@ function msiMonthlySchedule(msiMoves: MsiMove[], timelineKeys: string[], timelin
       // índice relativo de la cuota en timeline: i - startIndex
       const installmentIndex = i + startIndex
       console.log(installmentIndex)
-      if (installmentIndex >= 0 && installmentIndex < item.numberOfAmounts) {
+      if (installmentIndex >= 0 && installmentIndex < item.months) {
         schedule[timelineKey]!.push(item)
       }
     }
@@ -89,12 +89,12 @@ function msiMonthlySchedule(msiMoves: MsiMove[], timelineKeys: string[], timelin
    recurrentes (fijas) + msi
    ----------------------- */
 function monthlyObligations(recurrentMoves: RecurrentMove[], msiSchedule: DebtCalendar, timelineKeys: string[]) {
-  const recurrentTotal = recurrentMoves.reduce((acc, r) => acc + Number(r.mensuality), 0)
+  const recurrentTotal = recurrentMoves.reduce((acc, r) => acc + Number(r.monthlyAmount), 0)
   const out: Record<string, {recurrent: number, msi: number, total: number}> = {}
   for (const key of timelineKeys) {
 
     const month = msiSchedule[key]!
-    const monthSum = month.reduce((acc, curr) => acc + curr.mensuality, 0)
+    const monthSum = month.reduce((acc, curr) => acc + curr.monthlyAmount, 0)
     out[key] = {
       recurrent: recurrentTotal,
       msi: Number(monthSum || 0),
@@ -128,8 +128,8 @@ async function run({
   const obligations = monthlyObligations(data.recurrentMoves, msiSchedule, keys)
 
   // sumas globales
-  const totalRecurrent = data.recurrentMoves.reduce((a,b) => a + Number(b.mensuality), 0)
-  const totalMsiMensual = data.msiMoves.reduce((a,b) => a + Number(b.mensuality), 0)
+  const totalRecurrent = data.recurrentMoves.reduce((a,b) => a + Number(b.monthlyAmount), 0)
+  const totalMsiMensual = data.msiMoves.reduce((a,b) => a + Number(b.monthlyAmount), 0)
 
   // armar datasets para gráfica
   const salaryArray = keys.map(_ => data.salary)
@@ -243,7 +243,7 @@ async function run({
   // mostrar por-item MSI cuánto queda por pagar (resumen)
   console.log('\nMSI detalle (resumen de cuotas originales):')
   for (const m of data.msiMoves) {
-    console.log(`${m.description} — mensualidad: ${m.mensuality} — cuotas totales: ${m.numberOfAmounts} — total: ${m.totalAmount} — startMonth: ${m.startMonth || 'assumed this month'}`)
+    console.log(`${m.description} — mensualidad: ${m.monthlyAmount} — cuotas totales: ${m.months} — total: ${m.totalAmount} — startMonth: ${m.startMonth || 'assumed this month'}`)
   }
 
   // exportar CSV simple del timeline (opcional)
