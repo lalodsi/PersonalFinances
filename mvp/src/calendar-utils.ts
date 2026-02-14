@@ -2,104 +2,120 @@ import type { MsiMove, RecurrentMove, SingleMove } from "./data.js"
 
 export type DebtCalendar = Record<string, MsiMove[]>
 
-
-export const formatMonthLabel = (year: number, month: number) => {
-  // month: 0..11
+/**
+ * Returns a short month label (e.g., "Jan 2025").
+ * @param year Full year (e.g., 2025)
+ * @param month Zero-based month index (0 = January, 11 = December)
+ */
+export const formatMonthLabel = (year: number, month: number): string => {
   const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
   return `${MONTHS[month]} ${year}`
 }
 
-export function addMonths(date: Date, count: number) {
+/**
+ * Returns a new Date shifted by a given number of months.
+ */
+export function addMonths(date: Date, count: number): Date {
   const d = new Date(date)
   d.setMonth(d.getMonth() + count)
   return d
 }
 
-export function monthKey(date: Date) {
+/**
+ * Returns a YYYY-MM key for a given date.
+ */
+export function monthKey(date: Date): string {
   const y = date.getFullYear()
-  const m = String(date.getMonth() + 1).padStart(2, '0') // YYYY-MM
+  const m = String(date.getMonth() + 1).padStart(2, '0')
   return `${y}-${m}`
 }
 
 /**
- * 
- * @param {Date} startDate initial month
- * @param {number} count number of months to consider in the range
- * @returns {
- *  labels: [ Jan 2025, Feb 2025, March 2025, ... ],
- *  keys: [ 2025-01, 2025-02, 2025-03, ...]
- * }
+ * Generates a range of consecutive months.
+ *
+ * @param startDate Starting date (defaults to current date)
+ * @param count Number of months to generate
+ * @returns Object containing:
+ *  - labels: ["Jan 2025", "Feb 2025", ...]
+ *  - keys: ["2025-01", "2025-02", ...]
  */
 export function monthsRange(startDate = new Date(), count = 12) {
-  const labels = []
-  const keys = []
+  const labels: string[] = []
+  const keys: string[] = []
+
   for (let i = 0; i < count; i++) {
     const d = addMonths(startDate, i)
     labels.push(formatMonthLabel(d.getFullYear(), d.getMonth()))
     keys.push(monthKey(d))
   }
+
   return { labels, keys }
 }
 
-/* -----------------------
-   Agrupar gastos por mes (por movimientos aleatorios)
-   ----------------------- */
-function groupMovesByMonth(moves: SingleMove[]) {
-  const out: Record<string, SingleMove[]> = {}
-  for (const m of moves) {
-    const key = monthKey(new Date(m.date))
-    out[key] = out[key] || []
-    out[key].push(m)
+/* =====================================================
+   Move Grouping
+   ===================================================== */
+
+/**
+ * Groups single moves by calendar month (YYYY-MM).
+ */
+export function groupMovesByMonth(moves: SingleMove[]) {
+  const result: Record<string, SingleMove[]> = {}
+
+  for (const move of moves) {
+    const key = monthKey(new Date(move.date))
+    if (!result[key]) result[key] = []
+    result[key].push(move)
   }
-  return out
+
+  return result
 }
 
-/* -----------------------
-   Desglose MSI
-   - Asume que cada msiMove tiene:
-     { totalAmount, months, monthlyAmount, startMonth? }
-   - startMonth (opcional) = 'YYYY-MM'
-   - Si no tiene startMonth se asume que comenzó en el mes actual.
-   Returns: map monthKey => total MSI mensual for that month (for the timeline)
-   ----------------------- */
-export const msiMonthlySchedule = (msiMoves: MsiMove[], timelineKeys: string[], timelineStartKey: string) => {
-  // timelineKeys: array de 'YYYY-MM' que queremos cubrir (p.ej. próximos 12 meses)
-  const schedule: DebtCalendar = Object.fromEntries(timelineKeys.map(k => [k, []]))
+/* =====================================================
+   MSI Schedule Projection
+   ===================================================== */
 
-  const [y, m]: number[] = timelineStartKey.split('-').map(Number)
+/**
+ * Builds an MSI projection over a given timeline.
+ *
+ * For each timeline month, determines which MSI items
+ * are still active and assigns them to that month.
+ *
+ * @param msiMoves List of MSI moves
+ * @param timelineKeys Array of YYYY-MM keys to evaluate
+ * @param timelineStartKey First month in timeline (YYYY-MM)
+ *
+ * @returns Map of monthKey -> active MSI moves for that month
+ */
+export const msiMonthlySchedule = (
+  msiMoves: MsiMove[],
+  timelineKeys: string[],
+  timelineStartKey: string
+): DebtCalendar => {
 
-  const timelineStart = new Date(y!, m! - 1, 1)
+  const schedule: DebtCalendar = Object.fromEntries(
+    timelineKeys.map(k => [k, []])
+  )
 
-  // calcular start y meses restantes
+  const [startYear, startMonth] = timelineStartKey.split('-').map(Number)
+  const timelineStart = new Date(startYear!, startMonth! - 1, 1)
+
   for (const item of msiMoves) {
-    let startKey = item.startMonth || monthKey(new Date())
+    const startKey = item.startMonth || monthKey(new Date())
     const [sy, sm] = startKey.split('-').map(Number)
-    const startDate = new Date(sy!, sm! - 1, 1)
+    const itemStartDate = new Date(sy!, sm! - 1, 1)
 
-    // meses transcurridos desde inicio hasta timelineStart
-    const monthsDiff = (timelineStart.getFullYear() - startDate.getFullYear()) * 12 + (timelineStart.getMonth() - startDate.getMonth())
-    let remaining = item.months
-    let startIndex = 0
-    if (monthsDiff > 0) {
-      // ya comenzó anteriormente, entonces quedan:
-      remaining = Math.max(0, item.months - monthsDiff)
-      startIndex = monthsDiff // el índice relativo en timeline donde aún aplica (si es negativo, se ajusta)
-    } else {
-      // todavía no comienza (startDate es en futuro) -> startIndex será negativo, convertimos a 0 y el pago empezará en startIndex positivo dentro del timeline
-      startIndex = monthsDiff
-    }
+    const monthsDiff =
+      (timelineStart.getFullYear() - itemStartDate.getFullYear()) * 12 +
+      (timelineStart.getMonth() - itemStartDate.getMonth())
 
-    // now iterate timelineKeys and add monthlyAmount to months where the installment is still active
-    console.log('iterating months')
+    let startIndex = monthsDiff
+
     for (let i = 0; i < timelineKeys.length; i++) {
-      const timelineKey = timelineKeys[i] as string
-      console.log(timelineKey)
-
-      // índice relativo de la cuota en timeline: i - startIndex
       const installmentIndex = i + startIndex
-      console.log(installmentIndex)
+
       if (installmentIndex >= 0 && installmentIndex < item.months) {
-        schedule[timelineKey]!.push(item)
+        schedule[timelineKeys[i]!]!.push(item)
       }
     }
   }
@@ -107,24 +123,53 @@ export const msiMonthlySchedule = (msiMoves: MsiMove[], timelineKeys: string[], 
   return schedule
 }
 
-/* -----------------------
-   Calcular obligaciones mensuales:
-   recurrentes (fijas) + msi
-   ----------------------- */
-export const monthlyObligations = (recurrentMoves: RecurrentMove[], msiSchedule: DebtCalendar, timelineKeys: string[]) => {
-  const recurrentTotal = recurrentMoves.reduce((acc, r) => acc + Number(r.monthlyAmount), 0)
-  const out: Record<string, {recurrent: number, msi: number, total: number}> = {}
-  for (const key of timelineKeys) {
 
-    const month = msiSchedule[key]!
-    const monthSum = month.reduce((acc, curr) => acc + curr.monthlyAmount, 0)
-    out[key] = {
+/* =====================================================
+   Monthly Obligations Calculation
+   ===================================================== */
+
+/**
+ * Calculates total monthly obligations by combining:
+ *  - Fixed recurrent payments
+ *  - Active MSI payments
+ *
+ * @param recurrentMoves Fixed monthly payments
+ * @param msiSchedule MSI projection by month
+ * @param timelineKeys Months to evaluate
+ *
+ * @returns Map of monthKey -> { recurrent, msi, total }
+ */
+export const monthlyObligations = (
+  recurrentMoves: RecurrentMove[],
+  msiSchedule: DebtCalendar,
+  timelineKeys: string[]
+) => {
+
+  const recurrentTotal = recurrentMoves.reduce(
+    (acc, r) => acc + Number(r.monthlyAmount),
+    0
+  )
+
+  const result: Record<string, {
+    recurrent: number
+    msi: number
+    total: number
+  }> = {}
+
+  for (const key of timelineKeys) {
+    const monthMsi = msiSchedule[key] || []
+
+    const msiTotal = monthMsi.reduce(
+      (acc, curr) => acc + curr.monthlyAmount,
+      0
+    )
+
+    result[key] = {
       recurrent: recurrentTotal,
-      msi: Number(monthSum || 0),
-      total: recurrentTotal + Number(monthSum || 0)
+      msi: msiTotal,
+      total: recurrentTotal + msiTotal
     }
-    console.log(out[key])
-    console.log(msiSchedule[key])
   }
-  return out
+
+  return result
 }
