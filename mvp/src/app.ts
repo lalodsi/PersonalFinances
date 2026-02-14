@@ -3,11 +3,11 @@ import { Chart, CategoryScale, LineController, LineElement, LinearScale, PointEl
 import { Canvas } from "skia-canvas"
 import fsp from 'node:fs/promises';
 
-import type { RecurrentMove } from './data.js'
 import data from './data.js'
-import { monthKey, monthlyObligations, monthsRange, msiMonthlySchedule} from './calendar-utils.js'
-import type { DebtCalendar } from './calendar-utils.js'
+import { monthKey, monthsRange} from './utils/date_utils.js'
+import { monthlyObligations, msiMonthlySchedule} from './utils/debt-calculations.js'
 
+monthKey
 Chart.register([
     LineController,
     PointElement,
